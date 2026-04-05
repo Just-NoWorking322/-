@@ -25,15 +25,15 @@ public partial class MainWindow : Window
     private const int MinBarcodeLen = 4;
     private const int BarcodeMaxLen = 64;
 
-    private static readonly SolidColorBrush BrushMuted = new(Color.FromRgb(0x9C, 0xA3, 0xAF));
-    private static readonly SolidColorBrush BrushOk = new(Color.FromRgb(0x34, 0xD3, 0x99));
-    private static readonly SolidColorBrush BrushWarn = new(Color.FromRgb(0xFB, 0xBF, 0x24));
-    private static readonly SolidColorBrush ShiftOpenBg = new(Color.FromRgb(0x14, 0x3D, 0x2C));
-    private static readonly SolidColorBrush ShiftOpenBorder = new(Color.FromRgb(0x16, 0x65, 0x34));
-    private static readonly SolidColorBrush ShiftOpenText = new(Color.FromRgb(0x86, 0xEF, 0xAC));
-    private static readonly SolidColorBrush ShiftWarnBg = new(Color.FromRgb(0x42, 0x27, 0x06));
-    private static readonly SolidColorBrush ShiftWarnBorder = new(Color.FromRgb(0xB4, 0x53, 0x09));
-    private static readonly SolidColorBrush ShiftWarnText = new(Color.FromRgb(0xFC, 0xD3, 0x4D));
+    private static readonly SolidColorBrush BrushMuted = new(Color.FromRgb(0x6B, 0x72, 0x80));
+    private static readonly SolidColorBrush BrushOk = new(Color.FromRgb(0x04, 0x78, 0x57));
+    private static readonly SolidColorBrush BrushWarn = new(Color.FromRgb(0xB4, 0x53, 0x09));
+    private static readonly SolidColorBrush ShiftOpenBg = new(Color.FromRgb(0xEC, 0xFD, 0xF5));
+    private static readonly SolidColorBrush ShiftOpenBorder = new(Color.FromRgb(0xA7, 0xF3, 0xD0));
+    private static readonly SolidColorBrush ShiftOpenText = new(Color.FromRgb(0x04, 0x78, 0x57));
+    private static readonly SolidColorBrush ShiftWarnBg = new(Color.FromRgb(0xFF, 0xFB, 0xEB));
+    private static readonly SolidColorBrush ShiftWarnBorder = new(Color.FromRgb(0xF5, 0x9E, 0x0B));
+    private static readonly SolidColorBrush ShiftWarnText = new(Color.FromRgb(0xB4, 0x53, 0x09));
 
     public ObservableCollection<CartLineRow> CartLines { get; } = new();
 
@@ -351,7 +351,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void ShowToast(string message, bool warn = false)
+    private void ShowToast(string message, bool warn = false, double visibleSeconds = 3.4)
     {
         ToastText.Text = message;
         ToastPanel.Background = warn
@@ -359,7 +359,9 @@ public partial class MainWindow : Window
             : new SolidColorBrush(Color.FromRgb(0x1F, 0x29, 0x37));
         ToastPanel.Visibility = Visibility.Visible;
         _toastTimer?.Stop();
-        _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3.4) };
+        if (visibleSeconds <= 0)
+            return;
+        _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(visibleSeconds) };
         _toastTimer.Tick += (_, _) =>
         {
             _toastTimer.Stop();
@@ -638,7 +640,7 @@ public partial class MainWindow : Window
             MessageBoxImage.Information);
     }
 
-    private void DeferCart_Click(object sender, RoutedEventArgs e)
+    private async void DeferCart_Click(object sender, RoutedEventArgs e)
     {
         if (!App.Cart.HasCart || !App.Cart.CanRefresh || CartLines.Count == 0)
         {
@@ -658,23 +660,38 @@ public partial class MainWindow : Window
                 CartJson = App.Cart.Root.GetRawText(),
             });
 
-        ShowToast($"Отложено: «{label.Trim()}».");
-        _ = ClearCartAfterDeferAsync();
+        ShowToast($"«{label.Trim()}» в отложенных. Открываем пустую продажу…", visibleSeconds: 8);
+        await ClearCartAfterDeferAsync().ConfigureAwait(true);
     }
 
+    /// <summary>Снимок уже в deferred_carts.json; здесь открываем новую пустую продажу на сервере.</summary>
     private async Task ClearCartAfterDeferAsync()
     {
         SetScanBusy(true);
         try
         {
-            await TryStartNewSaleAsync().ConfigureAwait(true);
+            App.Cart.Clear();
             RebindCartUi();
-            CartMessageText.Text = "Продажа начата — добавьте товары.";
+            CartMessageText.Text = "Отложено. Подключаем новую пустую продажу…";
+            CartMessageText.Foreground = BrushMuted;
+
+            await TryStartNewSaleAsync().ConfigureAwait(true);
+            try
+            {
+                await ReloadCartFromServerAsync().ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                PosLogger.Log($"ReloadCart после отложить: {ex.Message}", "PAYMENT");
+            }
+
+            RebindCartUi();
+            CartMessageText.Text = "Чек отложён — корзина пуста. Следующий клиент. Вернуть: «Отложенные…» → Загрузить.";
             CartMessageText.Foreground = BrushOk;
         }
         catch (Exception ex)
         {
-            CartMessageText.Text = "Отложено. Начните продажу вручную: " + ex.Message;
+            CartMessageText.Text = "Отложено в списке, но новая продажа не открылась: " + ex.Message;
             CartMessageText.Foreground = BrushWarn;
             App.Cart.Clear();
             RebindCartUi();
@@ -761,7 +778,7 @@ public partial class MainWindow : Window
 
             DeferredCartsStore.RemoveIds(restoredIds);
             RebindCartUi();
-            ShowToast($"Загружено отложенных корзин: {entries.Count}.");
+            ShowToast($"Загружено отложенных корзин: {entries.Count}.", visibleSeconds: 8);
         }
         catch (ApiException ex)
         {
@@ -1021,8 +1038,8 @@ public partial class MainWindow : Window
     private async Task TryStartNewSaleAsync()
     {
         var cb = await EnsurePosCashboxIdAsync().ConfigureAwait(true);
-        var cart = await App.Api.PosSalesStartAsync(string.IsNullOrWhiteSpace(cb) ? null : cb).ConfigureAwait(true);
-        App.Cart.SetCart(cart);
+        var raw = await App.Api.PosSalesStartAsync(string.IsNullOrWhiteSpace(cb) ? null : cb).ConfigureAwait(true);
+        CartResponseHelper.ApplyCartResponseToSession(raw, App.Cart);
     }
 
     /// <summary>После успешной оплаты: сброс локальной корзины и новая продажа на сервере (как «Начать продажу»).</summary>
@@ -1407,8 +1424,8 @@ public partial class MainWindow : Window
     {
         if (!App.Cart.CanRefresh)
             return;
-        var c = await App.Api.PosCartGetAsync(App.Cart.CartId!).ConfigureAwait(true);
-        App.Cart.SetCart(c);
+        var raw = await App.Api.PosCartGetAsync(App.Cart.CartId!).ConfigureAwait(true);
+        CartResponseHelper.ApplyCartResponseToSession(raw, App.Cart);
     }
 
     private void BarcodeBox_KeyDown(object sender, KeyEventArgs e)

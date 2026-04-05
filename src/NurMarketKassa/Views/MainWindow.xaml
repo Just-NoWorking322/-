@@ -6,18 +6,12 @@
         Icon="pack://application:,,,/Assets/app-logo.png"
         Height="840" Width="1280"
         MinHeight="640" MinWidth="960"
-        Background="#0A0A0A"
+        Background="#F5F5F5"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
         PreviewKeyDown="MainWindow_PreviewKeyDown">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-        <Style x:Key="DarkTb" TargetType="TextBox">
-            <Setter Property="Background" Value="#262626"/>
-            <Setter Property="Foreground" Value="#F3F4F6"/>
-            <Setter Property="BorderBrush" Value="#404040"/>
-            <Setter Property="CaretBrush" Value="#F3F4F6"/>
-        </Style>
         <Style x:Key="HdrBtn" TargetType="Button">
             <Setter Property="Background" Value="#1F2937"/>
             <Setter Property="Foreground" Value="#F3F4F6"/>
@@ -123,18 +117,18 @@
                                 Padding="10,6"
                                 Margin="0,0,8,0"
                                 Cursor="Hand"
-                                Background="#422006"
-                                Foreground="#FCD34D"
-                                BorderBrush="#B45309"
+                                Background="White"
+                                Foreground="#111827"
+                                BorderBrush="#E5E7EB"
                                 BorderThickness="1"
                                 ToolTip="Сохранить чек локально для выгрузки на сервер (без API checkout)"/>
                         <Button Content="Очередь офлайн"
                                 Click="OfflineQueueInfo_Click"
                                 Padding="10,6"
                                 Cursor="Hand"
-                                Background="#1F2937"
-                                Foreground="#E5E7EB"
-                                BorderBrush="#374151"
+                                Background="White"
+                                Foreground="#111827"
+                                BorderBrush="#E5E7EB"
                                 BorderThickness="1"/>
                     </StackPanel>
                 </StackPanel>
@@ -147,21 +141,13 @@
                             Click="OpenShift_Click"
                             Padding="10,6"
                             Margin="0,0,8,0"
-                            Cursor="Hand"
-                            Background="#1F2937"
-                            Foreground="#F3F4F6"
-                            BorderBrush="#374151"
-                            BorderThickness="1"/>
+                            Cursor="Hand"/>
                     <Button x:Name="CloseShiftButton"
                             Content="Закрыть смену"
                             Click="CloseShift_Click"
                             Padding="10,6"
                             IsEnabled="False"
-                            Cursor="Hand"
-                            Background="#1F2937"
-                            Foreground="#F3F4F6"
-                            BorderBrush="#374151"
-                            BorderThickness="1"/>
+                            Cursor="Hand"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -174,8 +160,8 @@
 
             <Border Grid.Column="0"
                     Margin="16,0,12,0"
-                    Background="#161616"
-                    BorderBrush="#333333"
+                    Background="White"
+                    BorderBrush="#E5E7EB"
                     BorderThickness="1"
                     CornerRadius="8"
                     Padding="12">
@@ -189,7 +175,7 @@
                     <TextBlock x:Name="ScaleStatusText"
                                Grid.Row="0"
                                FontSize="12"
-                               Foreground="#9CA3AF"
+                               Foreground="#6B7280"
                                TextWrapping="Wrap"
                                Margin="0,0,0,8"/>
                     <Grid Grid.Row="1" Margin="0,0,0,10">
@@ -203,25 +189,17 @@
                                  Padding="8,6"
                                  FontSize="14"
                                  VerticalContentAlignment="Center"
-                                 Style="{StaticResource DarkTb}"
                                  TextChanged="CatalogSearchBox_TextChanged"/>
                         <Button Grid.Column="1"
                                 Content="Обновить каталог"
                                 Click="RefreshCatalog_Click"
                                 Padding="10,6"
-                                Cursor="Hand"
-                                Background="#374151"
-                                Foreground="#F3F4F6"
-                                BorderBrush="#4B5563"
-                                BorderThickness="1"/>
+                                Cursor="Hand"/>
                     </Grid>
                     <TabControl x:Name="CatalogTabs"
                                 Grid.Row="2"
                                 Grid.RowSpan="2"
                                 Margin="0,0,0,0"
-                                Background="#161616"
-                                BorderBrush="#404040"
-                                Foreground="#E5E7EB"
                                 SelectionChanged="CatalogTabs_SelectionChanged">
                         <TabItem Header="Вес (кг)">
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -256,14 +234,13 @@
                                                     <TextBlock Text="{Binding Title}"
                                                                FontSize="11"
                                                                FontWeight="SemiBold"
-                                                               Foreground="#E5E7EB"
                                                                TextWrapping="Wrap"
                                                                MaxHeight="38"
                                                                TextTrimming="CharacterEllipsis"
                                                                Margin="0,6,0,0"/>
                                                     <TextBlock Text="{Binding PriceLine}"
                                                                FontSize="10"
-                                                               Foreground="#9CA3AF"
+                                                               Foreground="#6B7280"
                                                                Margin="0,2,0,0"/>
                                                 </StackPanel>
                                             </Button>
@@ -305,14 +282,13 @@
                                                     <TextBlock Text="{Binding Title}"
                                                                FontSize="11"
                                                                FontWeight="SemiBold"
-                                                               Foreground="#E5E7EB"
                                                                TextWrapping="Wrap"
                                                                MaxHeight="38"
                                                                TextTrimming="CharacterEllipsis"
                                                                Margin="0,6,0,0"/>
                                                     <TextBlock Text="{Binding PriceLine}"
                                                                FontSize="10"
-                                                               Foreground="#9CA3AF"
+                                                               Foreground="#6B7280"
                                                                Margin="0,2,0,0"/>
                                                 </StackPanel>
                                             </Button>
@@ -329,7 +305,7 @@
                     Grid.Column="0"
                     Panel.ZIndex="10"
                     Margin="16,0,12,0"
-                    Background="#1A1A1A"
+                    Background="White"
                     BorderBrush="#F59E0B"
                     BorderThickness="2"
                     CornerRadius="8"
@@ -340,7 +316,6 @@
                                x:Name="SearchOverlayTitle"
                                FontWeight="SemiBold"
                                FontSize="13"
-                               Foreground="#F9FAFB"
                                Margin="0,0,0,8"/>
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <ItemsControl x:Name="CatalogSearchItems">
@@ -373,14 +348,13 @@
                                             <TextBlock Text="{Binding Title}"
                                                        FontSize="11"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#E5E7EB"
                                                        TextWrapping="Wrap"
                                                        MaxHeight="38"
                                                        TextTrimming="CharacterEllipsis"
                                                        Margin="0,6,0,0"/>
                                             <TextBlock Text="{Binding PriceLine}"
                                                        FontSize="10"
-                                                       Foreground="#9CA3AF"
+                                                       Foreground="#6B7280"
                                                        Margin="0,2,0,0"/>
                                         </StackPanel>
                                     </Button>
@@ -393,8 +367,8 @@
 
             <Border Grid.Column="1"
                     Margin="0,0,16,0"
-                    Background="#161616"
-                    BorderBrush="#333333"
+                    Background="White"
+                    BorderBrush="#E5E7EB"
                     BorderThickness="1"
                     CornerRadius="8"
                     Padding="12">
@@ -403,7 +377,7 @@
                                Text="Корзина"
                                FontSize="16"
                                FontWeight="SemiBold"
-                               Foreground="#F9FAFB"
+                               Foreground="#111827"
                                Margin="0,0,0,8"/>
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
                         <Button x:Name="StartSaleButton"
@@ -422,11 +396,7 @@
                                 Padding="12,8"
                                 IsEnabled="False"
                                 Cursor="Hand"
-                                Margin="0,0,8,0"
-                                Background="#374151"
-                                Foreground="#F3F4F6"
-                                BorderBrush="#4B5563"
-                                BorderThickness="1"/>
+                                Margin="0,0,8,0"/>
                         <Button x:Name="CheckoutButton"
                                 Content="Оплатить"
                                 Click="Checkout_Click"
@@ -444,24 +414,25 @@
                                 Padding="10,7"
                                 Margin="0,0,8,0"
                                 Cursor="Hand"
-                                Background="#4B5563"
-                                Foreground="#F9FAFB"
-                                BorderThickness="0"
+                                Background="#F3F4F6"
+                                Foreground="#111827"
+                                BorderBrush="#E5E7EB"
+                                BorderThickness="1"
                                 ToolTip="Сохранить корзину и начать новую продажу"/>
                         <Button Content="Отложенные…"
                                 Click="OpenDeferredCarts_Click"
                                 Padding="10,7"
                                 Cursor="Hand"
-                                Background="#1F2937"
-                                Foreground="#FCD34D"
-                                BorderBrush="#B45309"
+                                Background="White"
+                                Foreground="#111827"
+                                BorderBrush="#E5E7EB"
                                 BorderThickness="1"
                                 ToolTip="Загрузить одну или несколько отложенных корзин в текущий чек"/>
                     </StackPanel>
                     <TextBlock DockPanel.Dock="Top"
                                Text="Скидка на чек"
                                FontSize="11"
-                               Foreground="#9CA3AF"
+                               Foreground="#374151"
                                Margin="0,0,0,4"/>
                     <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
@@ -475,43 +446,33 @@
                                  Grid.Column="0"
                                  Margin="0,0,4,0"
                                  Padding="6,4"
-                                 Style="{StaticResource DarkTb}"
                                  ToolTip="Процент (только % или только сумма)"/>
                         <TextBlock Grid.Column="1"
                                    Text="%"
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"
-                                   Foreground="#9CA3AF"/>
+                                   Foreground="#6B7280"/>
                         <TextBox x:Name="OrderDiscountSumBox"
                                  Grid.Column="2"
                                  Margin="0,0,8,0"
                                  Padding="6,4"
-                                 Style="{StaticResource DarkTb}"
                                  ToolTip="Сумма скидки, сом"/>
                         <Button Grid.Column="3"
                                 Content="Применить"
                                 Click="ApplyOrderDiscount_Click"
                                 Padding="8,5"
                                 Margin="0,0,6,0"
-                                Cursor="Hand"
-                                Background="#374151"
-                                Foreground="#F3F4F6"
-                                BorderBrush="#4B5563"
-                                BorderThickness="1"/>
+                                Cursor="Hand"/>
                         <Button Grid.Column="4"
                                 Content="Сброс"
                                 Click="ClearOrderDiscount_Click"
                                 Padding="8,5"
-                                Cursor="Hand"
-                                Background="#374151"
-                                Foreground="#F3F4F6"
-                                BorderBrush="#4B5563"
-                                BorderThickness="1"/>
+                                Cursor="Hand"/>
                     </Grid>
                     <TextBlock DockPanel.Dock="Top"
                                Text="Штрихкод"
                                FontSize="11"
-                               Foreground="#9CA3AF"
+                               Foreground="#374151"
                                Margin="0,0,0,4"/>
                     <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
@@ -524,7 +485,6 @@
                                  Padding="8,6"
                                  FontSize="14"
                                  VerticalContentAlignment="Center"
-                                 Style="{StaticResource DarkTb}"
                                  KeyDown="BarcodeBox_KeyDown"/>
                         <Button x:Name="ScanBarcodeButton"
                                 Grid.Column="1"
@@ -532,11 +492,7 @@
                                 Click="ScanBarcode_Click"
                                 Padding="12,8"
                                 Cursor="Hand"
-                                FontWeight="SemiBold"
-                                Background="#374151"
-                                Foreground="#F3F4F6"
-                                BorderBrush="#4B5563"
-                                BorderThickness="1"/>
+                                FontWeight="SemiBold"/>
                     </Grid>
                     <TextBlock x:Name="CartMessageText"
                                DockPanel.Dock="Top"
@@ -545,22 +501,20 @@
                                Margin="0,0,0,8"
                                MinHeight="32"/>
                     <Border DockPanel.Dock="Bottom"
-                            Background="#0F0F0F"
-                            BorderBrush="#333333"
+                            Background="#F9FAFB"
+                            BorderBrush="#E5E7EB"
                             BorderThickness="0,1,0,0"
                             Padding="0,10,0,0"
                             Margin="0,8,0,0">
                         <TextBlock x:Name="CartTotalText"
                                    FontSize="15"
                                    FontWeight="SemiBold"
-                                   Foreground="#F9FAFB"
+                                   Foreground="#111827"
                                    HorizontalAlignment="Right"/>
                     </Border>
                     <ListView x:Name="CartListView"
                               ItemsSource="{Binding CartLines}"
                               BorderThickness="0"
-                              Background="#1A1A1A"
-                              Foreground="#F3F4F6"
                               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
@@ -580,11 +534,11 @@
                                         <TextBlock Text="{Binding Title}"
                                                    FontSize="13"
                                                    FontWeight="SemiBold"
-                                                   Foreground="#F3F4F6"
+                                                   Foreground="#111827"
                                                    TextWrapping="Wrap"/>
                                         <TextBlock Text="{Binding SubLine}"
                                                    FontSize="11"
-                                                   Foreground="#9CA3AF"
+                                                   Foreground="#6B7280"
                                                    Margin="0,2,0,0"/>
                                         <TextBlock Text="{Binding LineTotal}"
                                                    FontSize="12"

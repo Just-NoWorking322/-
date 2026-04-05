@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 
 namespace NurMarketKassa.Services;
@@ -5,6 +6,15 @@ namespace NurMarketKassa.Services;
 /// <summary>Извлечение корзины из ответа scan/patch (как _cart_from_patch_response + ответ scan).</summary>
 internal static class CartResponseHelper
 {
+    /// <summary>Ответ start/scan/patch/get: корзина в корне или в поле <c>cart</c>.</summary>
+    public static void ApplyCartResponseToSession(JsonElement raw, CartSession session)
+    {
+        if (TryUpdateCartSession(raw, session))
+            return;
+
+        throw new InvalidOperationException("В ответе сервера нет объекта корзины с id.");
+    }
+
     public static bool TryUpdateCartSession(JsonElement response, CartSession session)
     {
         var cart = ExtractCart(response);
