@@ -1,0 +1,89 @@
+<Window x:Class="NurMarketKassa.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Вход — Nur Market"
+        Icon="pack://application:,,,/Assets/app-logo.png"
+        Height="520" Width="440"
+        MinHeight="480" MinWidth="380"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize"
+        Background="#F5F5F5">
+    <Grid>
+        <Border Background="White"
+                CornerRadius="12"
+                Margin="32"
+                Padding="28,32"
+                VerticalAlignment="Center"
+                BorderBrush="#E5E7EB"
+                BorderThickness="1">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="2" Opacity="0.12" Direction="270"/>
+            </Border.Effect>
+            <StackPanel>
+                <Image Source="pack://application:,,,/Assets/app-logo.png"
+                       Width="72"
+                       Height="72"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,12"
+                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                <TextBlock Text="Nur Market"
+                           FontSize="22"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Касса"
+                           FontSize="14"
+                           Foreground="#6B7280"
+                           HorizontalAlignment="Center"
+                           Margin="0,4,0,20"/>
+                <TextBlock x:Name="ApiUrlText"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,20"/>
+                <TextBlock Text="Email" FontSize="12" Foreground="#374151"/>
+                <TextBox x:Name="EmailBox"
+                         Margin="0,4,0,12"
+                         Padding="10,8"
+                         FontSize="14"
+                         VerticalContentAlignment="Center"/>
+                <TextBlock Text="Пароль" FontSize="12" Foreground="#374151"/>
+                <PasswordBox x:Name="PasswordBox"
+                             Margin="0,4,0,16"
+                             Padding="10,8"
+                             FontSize="14"
+                             VerticalContentAlignment="Center"
+                             KeyDown="PasswordBox_KeyDown"/>
+                <TextBlock x:Name="ErrorText"
+                           TextWrapping="Wrap"
+                           Foreground="#B45309"
+                           FontSize="12"
+                           Margin="0,0,0,12"
+                           MinHeight="36"
+                           Visibility="Collapsed"/>
+                <Button x:Name="LoginButton"
+                        Content="Войти"
+                        Click="LoginButton_Click"
+                        Padding="16,10"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="#0A0A0A"
+                        Background="#F7D617"
+                        BorderThickness="0"
+                        Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="8"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

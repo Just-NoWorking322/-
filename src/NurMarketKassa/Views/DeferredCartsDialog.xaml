@@ -1,0 +1,55 @@
+<Window x:Class="NurMarketKassa.Views.DeferredCartsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Отложенные корзины"
+        Width="520" Height="440"
+        MinHeight="320" MinWidth="420"
+        WindowStartupLocation="CenterOwner"
+        Background="#121212"
+        Foreground="#F3F4F6"
+        ResizeMode="CanResizeWithGrip">
+    <DockPanel Margin="16">
+        <TextBlock DockPanel.Dock="Top"
+                   TextWrapping="Wrap"
+                   Foreground="#9CA3AF"
+                   FontSize="12"
+                   Margin="0,0,0,12"
+                   Text="Выберите одну или несколько корзин (Ctrl+щелчок). «Загрузить в чек» — добавить позиции к текущей продаже."/>
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,14,0,0">
+            <Button Content="Удалить выбранные"
+                    Click="DeleteSelected_Click"
+                    Padding="12,8"
+                    Margin="0,0,8,0"
+                    Cursor="Hand"
+                    Background="#374151"
+                    Foreground="White"
+                    BorderThickness="0"/>
+            <Button Content="Загрузить в чек"
+                    Click="LoadSelected_Click"
+                    Padding="12,8"
+                    Margin="0,0,8,0"
+                    Cursor="Hand"
+                    Background="#F7D617"
+                    Foreground="#111827"
+                    FontWeight="SemiBold"
+                    BorderThickness="0"/>
+            <Button Content="Закрыть"
+                    IsCancel="True"
+                    Padding="12,8"
+                    Cursor="Hand"
+                    Background="#1F2937"
+                    Foreground="White"
+                    BorderBrush="#374151"
+                    BorderThickness="1"/>
+        </StackPanel>
+        <ListBox x:Name="CartListBox"
+                 SelectionMode="Extended"
+                 Background="#1A1A1A"
+                 BorderBrush="#374151"
+                 Foreground="#F3F4F6"
+                 Padding="4"/>
+    </DockPanel>
+</Window>
