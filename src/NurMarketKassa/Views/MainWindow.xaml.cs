@@ -687,6 +687,12 @@ public partial class MainWindow : Window
 
     private async void OpenDeferredCarts_Click(object sender, RoutedEventArgs e)
     {
+        if (App.Api is null)
+        {
+            MessageBox.Show("API не инициализирован.", "Отложенные", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
         var dlg = new DeferredCartsDialog { Owner = this };
         if (dlg.ShowDialog() != true || dlg.EntriesToRestore.Count == 0)
             return;

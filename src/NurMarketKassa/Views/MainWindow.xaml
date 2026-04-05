@@ -256,6 +256,7 @@
                                                     <TextBlock Text="{Binding Title}"
                                                                FontSize="11"
                                                                FontWeight="SemiBold"
+                                                               Foreground="#E5E7EB"
                                                                TextWrapping="Wrap"
                                                                MaxHeight="38"
                                                                TextTrimming="CharacterEllipsis"
@@ -304,6 +305,7 @@
                                                     <TextBlock Text="{Binding Title}"
                                                                FontSize="11"
                                                                FontWeight="SemiBold"
+                                                               Foreground="#E5E7EB"
                                                                TextWrapping="Wrap"
                                                                MaxHeight="38"
                                                                TextTrimming="CharacterEllipsis"
@@ -327,7 +329,7 @@
                     Grid.Column="0"
                     Panel.ZIndex="10"
                     Margin="16,0,12,0"
-                    Background="White"
+                    Background="#1A1A1A"
                     BorderBrush="#F59E0B"
                     BorderThickness="2"
                     CornerRadius="8"
@@ -338,6 +340,7 @@
                                x:Name="SearchOverlayTitle"
                                FontWeight="SemiBold"
                                FontSize="13"
+                               Foreground="#F9FAFB"
                                Margin="0,0,0,8"/>
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <ItemsControl x:Name="CatalogSearchItems">
@@ -370,6 +373,7 @@
                                             <TextBlock Text="{Binding Title}"
                                                        FontSize="11"
                                                        FontWeight="SemiBold"
+                                                       Foreground="#E5E7EB"
                                                        TextWrapping="Wrap"
                                                        MaxHeight="38"
                                                        TextTrimming="CharacterEllipsis"

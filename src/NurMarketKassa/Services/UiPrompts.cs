@@ -16,7 +16,7 @@ internal static class UiPrompts
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
             Owner = owner,
             ResizeMode = ResizeMode.NoResize,
-            Background = new SolidColorBrush(Color.FromRgb(0x17, 0x17, 0x17)),
+            Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x17, 0x17, 0x17)),
             Foreground = Brushes.White,
         };
         var sp = new StackPanel { Margin = new Thickness(16) };
@@ -31,7 +31,7 @@ internal static class UiPrompts
         {
             Text = initial,
             Padding = new Thickness(8, 6, 8, 6),
-            Background = new SolidColorBrush(Color.FromRgb(0x2a, 0x2a, 0x2a)),
+            Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2a, 0x2a, 0x2a)),
             Foreground = Brushes.White,
             CaretBrush = Brushes.White,
         };
