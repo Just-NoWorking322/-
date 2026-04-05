@@ -55,12 +55,19 @@ public partial class DeferredCartsDialog : Window
         var rows = CartListBox.SelectedItems.Cast<DeferredCartListRow>().ToList();
         if (rows.Count == 0)
         {
-            MessageBox.Show(this, "Выберите одну или несколько корзин (Ctrl+щелчок).", "Отложенные",
+            MessageBox.Show(this, "Выберите один чек для загрузки.", "Отложенные",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
-        EntriesToRestore = rows.Select(r => r.Entry).ToList();
+        if (rows.Count > 1)
+        {
+            MessageBox.Show(this, "Для загрузки выберите только один чек.", "Отложенные",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        EntriesToRestore = [rows[0].Entry];
         DialogResult = true;
     }
 

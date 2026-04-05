@@ -670,21 +670,10 @@ public partial class MainWindow : Window
         SetScanBusy(true);
         try
         {
-            App.Cart.Clear();
-            RebindCartUi();
-            CartMessageText.Text = "Отложено. Подключаем новую пустую продажу…";
+            CartMessageText.Text = "Отложено. Очищаем текущую корзину…";
             CartMessageText.Foreground = BrushMuted;
 
-            await TryStartNewSaleAsync().ConfigureAwait(true);
-            try
-            {
-                await ReloadCartFromServerAsync().ConfigureAwait(true);
-            }
-            catch (Exception ex)
-            {
-                PosLogger.Log($"ReloadCart после отложить: {ex.Message}", "PAYMENT");
-            }
-
+            await EnsureActiveEmptyCartAsync().ConfigureAwait(true);
             RebindCartUi();
             CartMessageText.Text = "Чек отложён — корзина пуста. Следующий клиент. Вернуть: «Отложенные…» → Загрузить.";
             CartMessageText.Foreground = BrushOk;
@@ -699,6 +688,41 @@ public partial class MainWindow : Window
         finally
         {
             SetScanBusy(false);
+        }
+    }
+
+    /// <summary>Делает текущую продажу пустой: удаляет все позиции и при необходимости открывает новую сессию.</summary>
+    private async Task EnsureActiveEmptyCartAsync()
+    {
+        if (App.Api is null)
+            throw new InvalidOperationException("API не инициализирован.");
+
+        if (!App.Cart.HasCart || !App.Cart.CanRefresh)
+        {
+            await TryStartNewSaleAsync().ConfigureAwait(true);
+            return;
+        }
+
+        var itemIds = CartDisplayHelper.EnumerateItems(App.Cart.Root)
+            .Select(CartDisplayHelper.TryItemId)
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Cast<string>()
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (itemIds.Count > 0)
+        {
+            foreach (var itemId in itemIds)
+                await App.Api.PosCartItemDeleteAsync(App.Cart.CartId!, itemId).ConfigureAwait(true);
+        }
+
+        try
+        {
+            await ReloadCartFromServerAsync().ConfigureAwait(true);
+        }
+        catch (ApiException ex) when (CartResponseHelper.LooksLikeStaleCart(ex))
+        {
+            await TryStartNewSaleAsync().ConfigureAwait(true);
         }
     }
 
@@ -717,8 +741,7 @@ public partial class MainWindow : Window
         SetScanBusy(true);
         try
         {
-            await RestoreDeferredCartsAsync(dlg.EntriesToRestore.OrderBy(x => x.SavedAt).ToList())
-                .ConfigureAwait(true);
+            await RestoreDeferredCartAsync(dlg.EntriesToRestore[0]).ConfigureAwait(true);
         }
         finally
         {
@@ -726,71 +749,81 @@ public partial class MainWindow : Window
         }
     }
 
-    private async Task RestoreDeferredCartsAsync(IReadOnlyList<DeferredCartEntry> entries)
+    private async Task RestoreDeferredCartAsync(DeferredCartEntry hold)
     {
-        if (App.Api is null || entries.Count == 0)
+        if (App.Api is null)
             return;
 
-        if (!App.Cart.HasCart || !App.Cart.CanRefresh)
-        {
-            try
-            {
-                await TryStartNewSaleAsync().ConfigureAwait(true);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    "Не удалось открыть новую продажу: " + ex.Message,
-                    "Отложенные",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                return;
-            }
-        }
-
-        var restoredIds = new List<string>();
         try
         {
-            foreach (var hold in entries)
-            {
-                using var doc = JsonDocument.Parse(
-                    string.IsNullOrWhiteSpace(hold.CartJson) ? "{}" : hold.CartJson);
-                foreach (var it in CartDisplayHelper.EnumerateItems(doc.RootElement))
-                {
-                    var pid = CartDisplayHelper.TryProductId(it);
-                    if (string.IsNullOrEmpty(pid))
-                        continue;
-                    var weighed = CartDisplayHelper.LineMustWeigh(it);
-                    var qty = CartDisplayHelper.LineQuantity(it);
-                    var qtyStr = FormatQuantityForApi(qty, weighed);
-                    var up = CartDisplayHelper.UnitPrice(it);
-                    var upStr = CartDisplayHelper.FormatMoney(up);
-                    var disc = CartDisplayHelper.OptionalDiscountTotalParam(it);
-                    var resp = await App.Api
-                        .PosAddItemAsync(App.Cart.CartId!, pid, qtyStr, upStr, disc)
-                        .ConfigureAwait(true);
-                    if (!CartResponseHelper.TryUpdateCartSession(resp, App.Cart))
-                        await ReloadCartFromServerAsync().ConfigureAwait(true);
-                }
+            CartMessageText.Text = $"Загружаем отложенный чек «{hold.Label}»…";
+            CartMessageText.Foreground = BrushMuted;
+            PosLogger.Log($"Отложенные: старт загрузки '{hold.Label}'", "PAYMENT");
 
-                restoredIds.Add(hold.Id);
+            await EnsureActiveEmptyCartAsync().ConfigureAwait(true);
+
+            using var doc = JsonDocument.Parse(
+                string.IsNullOrWhiteSpace(hold.CartJson) ? "{}" : hold.CartJson);
+            var totalLines = 0;
+            var restoredLines = 0;
+            foreach (var it in CartDisplayHelper.EnumerateItems(doc.RootElement))
+            {
+                totalLines++;
+                var pid = CartDisplayHelper.TryProductId(it);
+                if (string.IsNullOrEmpty(pid))
+                {
+                    PosLogger.Log(
+                        $"Отложенные: пропуск строки без product_id, name='{CartDisplayHelper.ItemName(it)}'",
+                        "PAYMENT");
+                    continue;
+                }
+                var weighed = CartDisplayHelper.LineMustWeigh(it);
+                var qty = CartDisplayHelper.LineQuantity(it);
+                var qtyStr = FormatQuantityForApi(qty, weighed);
+                var up = CartDisplayHelper.UnitPrice(it);
+                var upStr = CartDisplayHelper.FormatMoney(up);
+                var disc = CartDisplayHelper.OptionalDiscountTotalParam(it);
+                var resp = await App.Api
+                    .PosAddItemAsync(App.Cart.CartId!, pid, qtyStr, upStr, disc)
+                    .ConfigureAwait(true);
+                if (!CartResponseHelper.TryUpdateCartSession(resp, App.Cart))
+                    await ReloadCartFromServerAsync().ConfigureAwait(true);
+                restoredLines++;
             }
 
-            DeferredCartsStore.RemoveIds(restoredIds);
+            if (totalLines == 0)
+                throw new InvalidOperationException("В отложенном чеке нет позиций для загрузки.");
+
+            if (restoredLines == 0)
+                throw new InvalidOperationException("Не удалось восстановить товары: в сохранённом чеке нет product_id.");
+
+            DeferredCartsStore.RemoveIds([hold.Id]);
             RebindCartUi();
-            ShowToast($"Загружено отложенных корзин: {entries.Count}.", visibleSeconds: 8);
+            CartMessageText.Text = $"Чек «{hold.Label}» загружен.";
+            CartMessageText.Foreground = BrushOk;
+            PosLogger.Log(
+                $"Отложенные: чек '{hold.Label}' загружен, строк восстановлено {restoredLines} из {totalLines}",
+                "PAYMENT");
+            ShowToast($"Чек «{hold.Label}» загружен.", visibleSeconds: 8);
         }
         catch (ApiException ex)
         {
+            PosLogger.Log($"Отложенные ApiException: {ex.Message}", "ERROR");
             MessageBox.Show(ex.Message, "Отложенные", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         catch (HttpRequestException ex)
         {
+            PosLogger.Log($"Отложенные HttpRequestException: {ex.Message}", "ERROR");
             MessageBox.Show(
                 string.IsNullOrWhiteSpace(ex.Message) ? "Нет сети." : ex.Message,
                 "Отложенные",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
+        }
+        catch (Exception ex)
+        {
+            PosLogger.Log($"Отложенные Exception: {ex.Message}", "ERROR");
+            MessageBox.Show(ex.Message, "Отложенные", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

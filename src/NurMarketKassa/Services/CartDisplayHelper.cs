@@ -307,13 +307,15 @@ internal static class CartDisplayHelper
     public static string? TryItemId(JsonElement it) =>
         it.ValueKind == JsonValueKind.Object && it.TryGetProperty("id", out var id) ? JsonScalarToString(id) : null;
 
-    /// <summary>ID товара для POST add-item: product_id или product.id.</summary>
+    /// <summary>ID товара для POST add-item: product_id, product.id или product_snapshot.id.</summary>
     public static string? TryProductId(JsonElement it)
     {
         if (it.ValueKind != JsonValueKind.Object)
             return null;
-        if (it.TryGetProperty("product_id", out var pid))
+        foreach (var key in new[] { "product_id", "product_uuid", "goods_id" })
         {
+            if (!it.TryGetProperty(key, out var pid))
+                continue;
             var s = JsonScalarToString(pid);
             if (!string.IsNullOrEmpty(s))
                 return s;
@@ -329,6 +331,32 @@ internal static class CartDisplayHelper
                 if (!string.IsNullOrEmpty(s))
                     return s;
             }
+        }
+
+        if (it.TryGetProperty("product", out var pScalar))
+        {
+            var s = JsonScalarToString(pScalar);
+            if (!string.IsNullOrEmpty(s))
+                return s;
+        }
+
+        if (it.TryGetProperty("product_snapshot", out var snap) && snap.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var key in new[] { "id", "pk", "uuid", "product_id" })
+            {
+                if (!snap.TryGetProperty(key, out var id))
+                    continue;
+                var s = JsonScalarToString(id);
+                if (!string.IsNullOrEmpty(s))
+                    return s;
+            }
+        }
+
+        if (it.TryGetProperty("product_snapshot", out var snapScalar))
+        {
+            var s = JsonScalarToString(snapScalar);
+            if (!string.IsNullOrEmpty(s))
+                return s;
         }
 
         return null;

@@ -14,7 +14,7 @@
                    Foreground="#9CA3AF"
                    FontSize="12"
                    Margin="0,0,0,12"
-                   Text="Выберите одну или несколько корзин (Ctrl+щелчок). «Загрузить в чек» — добавить позиции к текущей продаже."/>
+                   Text="Выберите один отложенный чек для загрузки. Несколько строк можно выделять только для удаления."/>
         <StackPanel DockPanel.Dock="Bottom"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
@@ -27,7 +27,7 @@
                     Background="#374151"
                     Foreground="White"
                     BorderThickness="0"/>
-            <Button Content="Загрузить в чек"
+            <Button Content="Загрузить чек"
                     Click="LoadSelected_Click"
                     Padding="12,8"
                     Margin="0,0,8,0"
